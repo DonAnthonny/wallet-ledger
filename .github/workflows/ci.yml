@@ -1,0 +1,37 @@
+name: CI
+on:
+  push:
+  pull_request:
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: wallet
+          POSTGRES_PASSWORD: wallet_dev_password
+          POSTGRES_DB: wallet_ledger
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U wallet -d wallet_ledger"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      NODE_ENV: test
+      DATABASE_HOST: localhost
+      DATABASE_PORT: 5432
+      DATABASE_USER: wallet
+      DATABASE_PASSWORD: wallet_dev_password
+      DATABASE_NAME: wallet_ledger
+      JWT_ACCESS_SECRET: ci_access_secret_change_me
+      JWT_REFRESH_SECRET: ci_refresh_secret_change_me
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm install
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npm run test:unit
