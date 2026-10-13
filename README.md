@@ -78,6 +78,7 @@ curl -X POST http://localhost:3000/api/v1/wallet/transfer \
 
 ```bash
 npm run test:unit
+npm run test:e2e
 npm test
 npm run typecheck
 npm run build
